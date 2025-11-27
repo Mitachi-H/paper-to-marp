@@ -1,4 +1,4 @@
-"""pdffigures2 の出力ファイル名を Figure/Table 番号ベースに整える."""
+"""Docling などの図抽出結果を Figure/Table 番号ベースに整える."""
 
 from __future__ import annotations
 
@@ -104,9 +104,9 @@ def normalize(meta_dir: Path, fig_dir: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="pdffigures2 の出力画像を Figure/Table 番号ベースでリネームする。",
+        description="抽出済みの図・表画像を Figure/Table 番号ベースでリネームする。",
     )
-    parser.add_argument("meta_dir", type=Path, help="pdffigures2 のメタデータディレクトリ")
+    parser.add_argument("meta_dir", type=Path, help="メタデータディレクトリ（Docling 出力など）")
     parser.add_argument("figure_dir", type=Path, help="抽出された図・表のディレクトリ")
     args = parser.parse_args()
 

@@ -68,17 +68,16 @@ def write_agent(dst_dir: Path, pdf_name: str) -> None:
 
         ## セットアップ
 
-        - Python 仮想環境を用意し、`pip install pymupdf` を実行して `fitz` を利用可能にする。
-        - Java 11 (例: Amazon Corretto 11) を利用する。
-        - pdffigures2 の jar は `../../pdffigures2/target/scala-2.12/pdffigures2_2.12-0.1.0.jar` を想定。
+        - Python 仮想環境を用意し、`pip install -r ../../requirements.txt` を実行する（docling, PyMuPDF が必要）。
+        - Docling 初回実行時にレイアウトモデルをダウンロードするため、インターネット接続が必要。
 
         ## タスク: 初期処理
 
         ユーザーが「初期化して」「図を抽出して」と指示したら、次を順に実行する:
 
         1. `python ../../scripts/pdf_to_text.py "{pdf_name}" paper_text.txt`
-        2. `../../scripts/extract_figures.sh "{pdf_name}" figures meta stats.json`
-        3. `python ../../scripts/normalize_figures.py meta figures`
+        2. `python ../../scripts/extract_figures.py "{pdf_name}" figures meta stats.json`
+        3. （必要なら）`python ../../scripts/normalize_figures.py meta figures` でキャプションに沿ったファイル名に揃える。
 
         ## タスク: スライド生成
 
