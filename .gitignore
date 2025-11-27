@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Scala / pdffigures2 build artifacts
+pdffigures2/target/
+pdffigures2/project/target/
+pdffigures2/pdffigures2.jar
+pdffigures2/*.jar
+pdffigures2/.bloop/
+pdffigures2/.metals/
+
+# Paper workspaces (PDF・抽出結果・生成物など個人データを含む)
+papers/**
+!papers/.gitkeep
+
+# Logs / temp
+*.log
