@@ -21,7 +21,10 @@
    pip install -r requirements.txt
    ```
    - Docling 初回実行時にレイアウトモデル等をダウンロードするため、ネット接続が必要。
-2. （任意）Marp CLI を入れて PDF 化もしたい場合
+2. VSCode（Cursor）に Marp 拡張機能をインストール
+   - 拡張機能マーケットプレイスから「Marp for VS Code」を検索してインストール
+   - または、コマンドパレット（`Cmd+Shift+P`）から「Extensions: Install Extensions」を開き、「marp」で検索
+3. （任意）Marp CLI を入れて PDF 化もしたい場合
    - `npm install -g @marp-team/marp-cli`
 
 ## 新しい論文を追加する手順
