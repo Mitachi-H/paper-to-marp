@@ -43,6 +43,7 @@ npx @marp-team/marp-cli slide.md -o slide.pdf --theme academic.css --allow-local
 
 | コマンド | 説明 |
 |---|---|
+| `/init-prompt` | `template/prompt.md` を用途に合わせてカスタマイズ（初回セットアップ） |
 | `/new-paper` | PDF → ワークスペース作成 |
 | `/generate-slides` | 論文を読み `slide.md` を生成 |
 | `/check-slides` | `slide.md` のフォーマット検証 |
