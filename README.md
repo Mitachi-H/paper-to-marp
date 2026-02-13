@@ -81,3 +81,11 @@ papers/            論文ワークスペース（.gitignore で除外）
 - **Python 3.10+**: docling, pymupdf
 - **Node.js**（任意）: @marp-team/marp-cli
 - **Claude Code**: スラッシュコマンドの実行に必要
+
+## ライセンスと第三者コード
+
+- `scripts/extract_figures.py` は Docling 公式サンプルをベースに改変しています。
+  - 出典・ライセンス詳細: `THIRD_PARTY_NOTICES.md`
+- `scripts/pdf_to_text.py` は `PyMuPDF` に依存します。
+  - PyMuPDF は `AGPL-3.0` または商用ライセンスのデュアルライセンスです。
+  - 公開・配布形態によって義務が変わるため、公開前に必ず PyMuPDF のライセンス条件を確認してください。

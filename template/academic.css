@@ -1,4 +1,9 @@
-/* @theme academic */
+/*
+ * @theme academic
+ * Based on marp-theme-academic by Kaito Sugimoto (@kaisugi)
+ * https://github.com/kaisugi/marp-theme-academic
+ * Licensed under MIT License — see THIRD_PARTY_NOTICES.md
+ */
 
 @import "gaia";
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap");

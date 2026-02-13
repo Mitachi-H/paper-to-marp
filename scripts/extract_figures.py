@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 """Docling で PDF から図表の PNG とメタデータを抽出するスクリプト。"""
 
+# 本ファイルは Docling 公式の Figure export 例をベースに改変しています。
+# - 参照: https://docling-project.github.io/docling/examples/export_figures/
+# - 元実装: https://github.com/docling-project/docling/tree/main/docs/examples
+# - 元ライセンス: MIT (c) 2024 International Business Machines
+# 詳細な帰属・ライセンス情報は THIRD_PARTY_NOTICES.md を参照してください。
+
 from __future__ import annotations
 
 import argparse
