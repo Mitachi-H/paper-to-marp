@@ -72,7 +72,7 @@ def main() -> None:
     if not args.skip_figures:
         ensure_docling_available()
 
-    # init: AGENT.md, prompt.css, figures/meta など
+    # init: AGENTS.md, prompt.css, figures/meta など
     run([sys.executable, str(SCRIPTS / "init_paper.py"), "--pdf", str(pdf_dst)], cwd=dest)
 
     if not args.skip_text:
@@ -94,7 +94,7 @@ def main() -> None:
         run([sys.executable, str(SCRIPTS / "normalize_figures.py"), "meta", "figures"], cwd=dest)
 
     print(f"完了: {dest}")
-    print("次のステップ例: Cursor/Codex で AGENT.md を開き、prompt に従って slide.md を生成してください。")
+    print("次のステップ例: Cursor/Codex で AGENTS.md を開き、prompt に従って slide.md を生成してください。")
 
 
 if __name__ == "__main__":

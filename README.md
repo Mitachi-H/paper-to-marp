@@ -27,6 +27,18 @@ npm install -g @marp-team/marp-cli
 PDF からテキスト・図表を自動抽出し、ワークスペース (`papers/<slug>/`) を作成する。
 抽出された図表は自動表示されるので、品質を確認できる。
 
+| ファイル | 内容 |
+|---|---|
+| `paper.pdf` | 元の PDF（コピー） |
+| `paper_text.txt` | 全文テキスト（ページ区切り付き UTF-8） |
+| `figures/` | `Figure1.png`, `Table1.png`, ...（Docling 抽出） |
+| `meta/` | 図表メタデータ JSON |
+| `stats.json` | 抽出の実行統計 |
+| `prompt.md` | スライド生成プロンプト（テンプレートからコピー、カスタマイズ可） |
+| `academic.css` | Marp テーマ |
+| `AGENTS.md` | Codex 向け指示 |
+| `CLAUDE.md` | Claude Code 向け指示（`AGENTS.md` と同内容を生成） |
+
 ### 3. スライド生成 — `/generate-slides papers/<slug>`
 
 論文テキストと図表を読み込み、`prompt.md` + `format.md` に従って `slide.md` を生成する。
@@ -55,6 +67,14 @@ template/          prompt.md, format.md, academic.css のテンプレート
 papers/            論文ワークスペース（.gitignore で除外）
 .claude/commands/  スラッシュコマンド定義
 ```
+
+| スクリプト | 説明 |
+|---|---|
+| `paper_cli.py` | ワンコマンドで init → テキスト抽出 → 図抽出 → リネーム |
+| `init_paper.py` | ワークスペース初期化 & `AGENTS.md` / `CLAUDE.md` 生成 |
+| `pdf_to_text.py` | PyMuPDF でページ区切り付きテキスト抽出 |
+| `extract_figures.py` | Docling で図表 PNG + メタデータ JSON 出力 |
+| `normalize_figures.py` | メタデータからキャプション番号に沿ってリネーム（idempotent） |
 
 ## 依存関係
 

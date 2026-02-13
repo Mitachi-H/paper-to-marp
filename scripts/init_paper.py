@@ -44,12 +44,8 @@ def copy_templates(dst_dir: Path) -> None:
         shutil.copytree(vscode_src, vscode_dst)
 
 
-def write_agent(dst_dir: Path, pdf_name: str) -> None:
-    agent_path = dst_dir / "AGENT.md"
-    if agent_path.exists():
-        return
-
-    content = dedent(
+def render_agent_content(pdf_name: str) -> str:
+    return dedent(
         f"""
         # Paper Slide Agent
 
@@ -94,7 +90,14 @@ def write_agent(dst_dir: Path, pdf_name: str) -> None:
         """
     ).strip() + "\n"
 
-    agent_path.write_text(content, encoding="utf-8")
+
+def write_agent_docs(dst_dir: Path, pdf_name: str) -> None:
+    content = render_agent_content(pdf_name)
+    for name in ("AGENTS.md", "CLAUDE.md"):
+        path = dst_dir / name
+        if path.exists():
+            continue
+        path.write_text(content, encoding="utf-8")
 
 
 def main() -> None:
@@ -109,9 +112,9 @@ def main() -> None:
     (cwd / "meta").mkdir(exist_ok=True)
 
     copy_templates(cwd)
-    write_agent(cwd, pdf_path.name)
+    write_agent_docs(cwd, pdf_path.name)
 
-    print("初期化完了: AGENT.md, figures/, meta/, academic.css, prompt.md を用意しました。")
+    print("初期化完了: AGENTS.md, CLAUDE.md, figures/, meta/, academic.css, prompt.md を用意しました。")
 
 
 if __name__ == "__main__":
