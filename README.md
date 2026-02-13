@@ -82,10 +82,9 @@ papers/            論文ワークスペース（.gitignore で除外）
 - **Node.js**（任意）: @marp-team/marp-cli
 - **Claude Code**: スラッシュコマンドの実行に必要
 
-## ライセンスと第三者コード
+## ライセンス
 
-- `scripts/extract_figures.py` は Docling 公式サンプルをベースに改変しています。
-  - 出典・ライセンス詳細: `THIRD_PARTY_NOTICES.md`
-- `scripts/pdf_to_text.py` は `PyMuPDF` に依存します。
-  - PyMuPDF は `AGPL-3.0` または商用ライセンスのデュアルライセンスです。
-  - 公開・配布形態によって義務が変わるため、公開前に必ず PyMuPDF のライセンス条件を確認してください。
+このプロジェクトは [GNU Affero General Public License v3.0](./LICENSE) の下で公開されています。
+PyMuPDF (AGPL-3.0) に依存するため、プロジェクト全体を AGPL-3.0 としています。
+
+第三者コードの帰属情報は [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) を参照してください。
