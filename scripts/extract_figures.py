@@ -19,6 +19,8 @@ from docling_core.types.doc import DoclingDocument, PictureItem, TableItem
 from docling_core.types.doc.document import BoundingBox, DocItem
 
 DEFAULT_IMAGE_SCALE = 2.0
+DEFAULT_MIN_AREA = 5000.0   # pt² — これ未満は無条件除外（ロゴ・アイコン）
+DEFAULT_SOFT_AREA = 20000.0  # pt² — キャプションなし且つこれ未満なら除外
 
 
 def parse_args() -> argparse.Namespace:
@@ -53,6 +55,23 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_IMAGE_SCALE,
         dest="image_scale",
         help="画像解像度スケール（72dpi を 1.0 とする倍率）",
+    )
+    parser.add_argument(
+        "--min-area",
+        type=float,
+        default=DEFAULT_MIN_AREA,
+        help=f"この面積(pt²)未満を無条件除外（既定: {DEFAULT_MIN_AREA}）",
+    )
+    parser.add_argument(
+        "--soft-area",
+        type=float,
+        default=DEFAULT_SOFT_AREA,
+        help=f"キャプションなし且つこの面積(pt²)未満を除外（既定: {DEFAULT_SOFT_AREA}）",
+    )
+    parser.add_argument(
+        "--no-filter",
+        action="store_true",
+        help="面積フィルタを無効化し全アイテムを保持する",
     )
     return parser.parse_args()
 
@@ -92,6 +111,30 @@ def sort_items(items: Sequence[DocItem]) -> List[DocItem]:
     return sorted(items, key=_key)
 
 
+def bbox_area(item: DocItem) -> float:
+    """バウンディングボックスの面積 (pt²) を返す。"""
+    if not item.prov:
+        return 0.0
+    bbox = item.prov[0].bbox
+    return abs((bbox.r - bbox.l) * (bbox.b - bbox.t))
+
+
+def should_keep(
+    item: DocItem,
+    doc: DoclingDocument,
+    min_area: float,
+    soft_area: float,
+) -> tuple[bool, str]:
+    """アイテムを保持するか判定する。(keep, reason) を返す。"""
+    area = bbox_area(item)
+    if area < min_area:
+        return False, f"area={area:.0f} < min_area={min_area:.0f}"
+    caption = item.caption_text(doc) if hasattr(item, "caption_text") else ""
+    if not caption and area < soft_area:
+        return False, f"no caption, area={area:.0f} < soft_area={soft_area:.0f}"
+    return True, ""
+
+
 def save_item_image(
     item: Union[PictureItem, TableItem],
     doc: DoclingDocument,
@@ -111,6 +154,9 @@ def convert(
     meta_dir: Path,
     stats_file: Path,
     image_scale: float,
+    min_area: float = DEFAULT_MIN_AREA,
+    soft_area: float = DEFAULT_SOFT_AREA,
+    no_filter: bool = False,
 ) -> None:
     if not pdf_path.exists():
         raise SystemExit(f"PDF が見つかりません: {pdf_path}")
@@ -150,9 +196,17 @@ def convert(
     sorted_items = sort_items(items)
 
     counters: Dict[str, int] = {"Figure": 0, "Table": 0}
+    skipped = 0
     meta_list: List[Dict[str, object]] = []
 
     for item in sorted_items:
+        if not no_filter:
+            keep, reason = should_keep(item, doc, min_area, soft_area)
+            if not keep:
+                skipped += 1
+                print(f"[filter] 除外: {reason}", file=sys.stderr)
+                continue
+
         kind = "Table" if isinstance(item, TableItem) else "Figure"
         next_index = counters[kind] + 1
         filename = f"{kind}{next_index}.png"
@@ -199,11 +253,15 @@ def convert(
         encoding="utf-8",
     )
 
+    if skipped:
+        print(f"[filter] {skipped} 件のアイテムを除外しました", file=sys.stderr)
+
     stats = [
         {
             "filename": str(pdf_path.resolve()),
             "numFigures": counters["Figure"],
             "numTables": counters["Table"],
+            "numSkipped": skipped,
             "numPages": len(doc.pages),
             "timeInMillis": elapsed_ms,
             "imageScale": image_scale,
@@ -226,6 +284,9 @@ def main() -> None:
         meta_dir=args.meta_dir,
         stats_file=args.stats_file,
         image_scale=args.image_scale,
+        min_area=args.min_area,
+        soft_area=args.soft_area,
+        no_filter=args.no_filter,
     )
 
 

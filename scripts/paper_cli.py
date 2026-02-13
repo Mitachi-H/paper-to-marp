@@ -46,6 +46,7 @@ def main() -> None:
         default=DEFAULT_IMAGE_SCALE,
         help="Docling で生成する画像解像度スケール（72dpi 基準）",
     )
+    parser.add_argument("--no-filter", action="store_true", help="図抽出の面積フィルタを無効化する")
     parser.add_argument("--force-copy", action="store_true", help="既存の paper.pdf を上書きする")
     args = parser.parse_args()
 
@@ -78,19 +79,16 @@ def main() -> None:
         run([sys.executable, str(SCRIPTS / "pdf_to_text.py"), "paper.pdf", "paper_text.txt"], cwd=dest)
 
     if not args.skip_figures:
-        run(
-            [
-                sys.executable,
-                str(SCRIPTS / "extract_figures.py"),
-                "--scale",
-                str(args.image_scale),
-                "paper.pdf",
-                "figures",
-                "meta",
-                "stats.json",
-            ],
-            cwd=dest,
-        )
+        extract_cmd = [
+            sys.executable,
+            str(SCRIPTS / "extract_figures.py"),
+            "--scale",
+            str(args.image_scale),
+        ]
+        if args.no_filter:
+            extract_cmd.append("--no-filter")
+        extract_cmd += ["paper.pdf", "figures", "meta", "stats.json"]
+        run(extract_cmd, cwd=dest)
 
     if not args.skip_normalize and not args.skip_figures:
         run([sys.executable, str(SCRIPTS / "normalize_figures.py"), "meta", "figures"], cwd=dest)

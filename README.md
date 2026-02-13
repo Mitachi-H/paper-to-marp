@@ -1,65 +1,74 @@
-# 論文スライド化ワークスペース
+# 論文スライド化
 
-1 論文 = 1 ディレクトリで、PDF からテキスト・図表を抽出し、Marp スライド (`slide.md`) を作るためのテンプレートです。
+1 論文 = 1 ディレクトリで、PDF からテキスト・図表を抽出し、Marp スライド (`slide.md`) を作るテンプレートです。
 
 ## ディレクトリ構成
 
 - `scripts/` : 共通スクリプト（PDF→TXT、Docling 図抽出、リネーム、初期化）
-- `template/` : `prompt.md` と `academic.css` のテンプレート
-- `papers/` : 論文ごとのワークスペースを置く場所（空の箱）
-- `ex/` : サンプル出力（既存の動作例）
+- `template/` : `prompt.md`（スライド生成プロンプト）と `academic.css`（Marp テーマ）
+- `papers/` : 論文ごとのワークスペース
 
-## 事前準備
+## セットアップ
 
-### 環境セットアップ（初回のみ）
-
-1. Python 仮想環境を作り依存を入れる（Docling + PyMuPDF）
-   ```
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
-   - Docling 初回実行時にレイアウトモデル等をダウンロードするため、ネット接続が必要。
-2. VSCode（Cursor）に Marp 拡張機能をインストール
-   - 拡張機能マーケットプレイスから「Marp for VS Code」を検索してインストール
-   - または、コマンドパレット（`Cmd+Shift+P`）から「Extensions: Install Extensions」を開き、「marp」で検索
-3. （任意）Marp CLI を入れて PDF 化もしたい場合
-   - `npm install -g @marp-team/marp-cli`
-
-## 新しい論文を追加する手順
-
-### 最短ワンコマンド（推奨）
-
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 ```
+
+- Docling 初回実行時にレイアウトモデルをダウンロードするため、ネット接続が必要
+- （任意）VSCode に [Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode) をインストール
+- （任意）PDF 出力: `npm install -g @marp-team/marp-cli`
+
+## 使い方
+
+### 1. ワークスペース作成（ワンコマンド）
+
+```bash
 python scripts/paper_cli.py --pdf ~/Downloads/foo.pdf
 ```
 
-- `papers/<PDF名ベースのslug>/` を自動で作成し、`paper.pdf` コピー → `AGENT.md` 生成 → テキスト抽出 → 図抽出（Docling） → リネームまで実行。
-- `--image-scale` で出力 PNG の解像度倍率を調整できる（既定 2.0 ≒ 144dpi）。
+`papers/<slug>/` に以下を自動生成:
 
-### 手動でやる場合
+| ファイル | 内容 |
+|---|---|
+| `paper.pdf` | 元の PDF（コピー） |
+| `paper_text.txt` | 全文テキスト（ページ区切り付き UTF-8） |
+| `figures/` | `Figure1.png`, `Table1.png`, ...（Docling 抽出） |
+| `meta/` | 図表メタデータ JSON |
+| `stats.json` | 抽出の実行統計 |
+| `prompt.md` | スライド生成プロンプト（テンプレートからコピー、カスタマイズ可） |
+| `academic.css` | Marp テーマ |
+| `AGENT.md` | AI エージェント向け指示 |
 
-1. 論文用ディレクトリを作る  
-   `mkdir -p papers/your-paper && cp ~/Downloads/paper.pdf papers/your-paper/`
-2. そのディレクトリで初期化  
-   `cd papers/your-paper`  
-   `python ../../scripts/init_paper.py`
-3. PDF からテキストと図を抽出
-   - `python ../../scripts/pdf_to_text.py paper.pdf paper_text.txt`
-   - `python ../../scripts/extract_figures.py paper.pdf figures meta stats.json`
-   - （必要なら）`python ../../scripts/normalize_figures.py meta figures`
-4. Cursor/Codex などのエージェントに `AGENT.md` を読ませ、`prompt.md` に従って `slide.md` を生成させる  
-   （必要に応じて `marp slide.md -o slide.pdf --theme academic.css`）
+`--image-scale` で図の解像度倍率を変更できる（既定 2.0 ≒ 144 dpi）。
 
-## スクリプトメモ
+### 2. スライド生成
 
-- `scripts/extract_figures.py`: `pdf`, `figures_dir`, `meta_dir`, `stats.json` を引数にとる Docling ベースの図抽出。`--scale` で解像度を指定。
-- `scripts/extract_figures.sh`: 上記 Python スクリプトの簡易ラッパー。
-- `scripts/normalize_figures.py`: メタデータを見て `Figure1.png`, `Table1.png` のようにリネームし、meta の `renderURL` も更新。
-- `scripts/pdf_to_text.py`: PyMuPDF でページ区切り付きテキストを出力。
-- `scripts/init_paper.py`: 現在のディレクトリにある単一の PDF を対象に、ワークスペース一式と `AGENT.md` を生成。
+ワークスペースの `prompt.md` を必要に応じてカスタマイズし、AI エージェントに `slide.md` を生成させる。
 
-## サンプル
+### 3. PDF 出力（任意）
 
-`ex/` 以下に NeurIPS 2020 "Can the brain do backpropagation..." の PDF、抽出結果、スライド例が残っています（旧構成）。
+```bash
+cd papers/<slug>
+npx @marp-team/marp-cli slide.md -o slide.pdf --theme academic.css --allow-local-files
+```
+
+## スクリプト
+
+| スクリプト | 説明 |
+|---|---|
+| `paper_cli.py` | ワンコマンドで init → テキスト抽出 → 図抽出 → リネーム |
+| `init_paper.py` | ワークスペース初期化 & AGENT.md 生成 |
+| `pdf_to_text.py` | PyMuPDF でページ区切り付きテキスト抽出 |
+| `extract_figures.py` | Docling で図表 PNG + メタデータ JSON 出力 |
+| `normalize_figures.py` | メタデータからキャプション番号に沿ってリネーム（idempotent） |
+
+## Claude Code
+
+`CLAUDE.md` にプロジェクトコンテキスト、`.claude/commands/` にスラッシュコマンドを定義:
+
+| コマンド | 説明 |
+|---|---|
+| `/new-paper <PDF>` | ワークスペース作成 |
+| `/generate-slides <workspace>` | スライド生成 |
+| `/check-slides <workspace>` | フォーマット検証 |

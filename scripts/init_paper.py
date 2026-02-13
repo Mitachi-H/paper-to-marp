@@ -29,7 +29,7 @@ def find_pdf(cwd: Path, explicit: Path | None) -> Path:
 
 
 def copy_templates(dst_dir: Path) -> None:
-    for name in ("academic.css", "prompt.md"):
+    for name in ("academic.css", "prompt.md", "format.md"):
         src = TEMPLATE_DIR / name
         dst = dst_dir / name
         if dst.exists():
@@ -53,46 +53,44 @@ def write_agent(dst_dir: Path, pdf_name: str) -> None:
         f"""
         # Paper Slide Agent
 
-        このエージェントは、このディレクトリの論文 PDF から Marp (theme: academic) 用の `slide.md` を生成する。
+        このディレクトリの論文 PDF から Marp (theme: academic) 用の `slide.md` を生成する。
+        プロジェクト全体の規約は `../../CLAUDE.md` を参照。
 
-        ## プロジェクト構成
+        ## ワークスペース構成
 
-        - 入力 PDF: `{pdf_name}`
-        - テキスト: `paper_text.txt`
-        - 図: `figures/`
-        - メタデータ: `meta/`
-        - スライド: `slide.md`
-        - プロンプト仕様: `prompt.md`
-        - スタイル: `academic.css`
-        - 実行統計: `stats.json`
+        | ファイル | 説明 |
+        |---|---|
+        | `{pdf_name}` | 入力 PDF |
+        | `paper_text.txt` | 抽出テキスト（ページ区切り付き） |
+        | `figures/` | 抽出された図表 (Figure*.png, Table*.png) |
+        | `meta/` | 図表メタデータ JSON |
+        | `prompt.md` | スライド生成プロンプト（内容面の指示） |
+        | `format.md` | Marp 書式ルール（デザイン面の指示） |
+        | `academic.css` | Marp テーマ |
+        | `slide.md` | 生成するスライド |
 
-        ## セットアップ
-
-        - Python 仮想環境を用意し、`pip install -r ../../requirements.txt` を実行する（docling, PyMuPDF が必要）。
-        - Docling 初回実行時にレイアウトモデルをダウンロードするため、インターネット接続が必要。
-
-        ## タスク: 初期処理
-
-        ユーザーが「初期化して」「図を抽出して」と指示したら、次を順に実行する:
-
-        1. `python ../../scripts/pdf_to_text.py "{pdf_name}" paper_text.txt`
-        2. `python ../../scripts/extract_figures.py "{pdf_name}" figures meta stats.json`
-        3. （必要なら）`python ../../scripts/normalize_figures.py meta figures` でキャプションに沿ったファイル名に揃える。
-
-        ## タスク: スライド生成
+        ## スライド生成
 
         ユーザーが「この論文をスライド化して」などと言ったら:
 
-        1. `paper_text.txt` を開き、章構成やページ範囲を把握する。
-        2. 最初に必ずユーザーへ質問する:
-            - 例: 「背景知識はどのあたりから説明しますか？」（`paper_text.txt` 全体をよく読んで、具体的な質問を考えること。）
-        3. `prompt.md` の指示を厳守して `slide.md` を生成する。
-           - 図は `./figures/<ファイル名>` で埋め込む。
+        1. `paper_text.txt` を読み、論文の全体構成・主要貢献・手法・実験結果を把握する。
+        2. `figures/` と `meta/` から利用可能な図表を確認する。
+        3. 最初に必ずユーザーへ質問する:
+            - 背景の深さ（どこから説明するか）
+            - 特に強調したいセクション
+            - 発表者名・セミナー名
+            - （論文内容に応じた具体的な質問）
+        4. `prompt.md`（内容）と `format.md`（書式）の指示を厳守して `slide.md` を生成する。
+           - 図は `./figures/<ファイル名>` で参照（実在ファイルのみ使用）。
+
+        Claude Code を使う場合、以下のスラッシュコマンドも利用可能:
+        - `/generate-slides` — スライド生成（このタスクと同等）
+        - `/check-slides` — 生成後のフォーマット検証
 
         ## 重要なルール
 
-        - このディレクトリ外のファイルは読み書きしない。
-        - `prompt.md` と `academic.css` の内容には従う。変更が必要ならユーザーに確認する。
+        - `prompt.md`、`format.md`、`academic.css` の内容に従う。変更が必要ならユーザーに確認する。
+        - `<div>` タグ後の空行を忘れない（Marp が markdown を認識するために必須）。
         """
     ).strip() + "\n"
 
