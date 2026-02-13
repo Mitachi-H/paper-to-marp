@@ -29,11 +29,25 @@ stats.json      prompt.md         format.md
 academic.css    AGENT.md          slide.md       slide.pdf (任意)
 ```
 
+## セットアップ
+
+```bash
+# venv 作成 & 有効化（初回のみ）
+python -m venv .venv
+source .venv/bin/activate
+
+# 依存関係インストール
+pip install -r requirements.txt
+```
+
+> **注意**: スクリプト実行前に必ず venv が有効化されていること。
+> Claude Code からスクリプトを実行する際も `.venv/bin/python` を使う。
+
 ## よく使うコマンド
 
 ```bash
 # 新規論文（Phase 1 一括）
-python scripts/paper_cli.py --pdf ~/Downloads/foo.pdf
+.venv/bin/python scripts/paper_cli.py --pdf ~/Downloads/foo.pdf
 
 # PDF 出力（marp-cli）
 npx @marp-team/marp-cli slide.md -o slide.pdf --theme academic.css --allow-local-files
