@@ -38,7 +38,8 @@ python scripts/paper_cli.py --pdf ~/Downloads/foo.pdf
 | `stats.json` | 抽出の実行統計 |
 | `prompt.md` | スライド生成プロンプト（テンプレートからコピー、カスタマイズ可） |
 | `academic.css` | Marp テーマ |
-| `AGENT.md` | AI エージェント向け指示 |
+| `AGENTS.md` | Codex 向け指示(CLAUDE.mdを変えるとsymlinkで勝手に変わる) |
+| `CLAUDE.md` | Claude Code 向け指示（`AGENTS.md` と同内容） |
 
 `--image-scale` で図の解像度倍率を変更できる（既定 2.0 ≒ 144 dpi）。
 
@@ -58,7 +59,7 @@ npx @marp-team/marp-cli slide.md -o slide.pdf --theme academic.css --allow-local
 | スクリプト | 説明 |
 |---|---|
 | `paper_cli.py` | ワンコマンドで init → テキスト抽出 → 図抽出 → リネーム |
-| `init_paper.py` | ワークスペース初期化 & AGENT.md 生成 |
+| `init_paper.py` | ワークスペース初期化 & AGENTS.md とCLAUDE.md 両方を生成 |
 | `pdf_to_text.py` | PyMuPDF でページ区切り付きテキスト抽出 |
 | `extract_figures.py` | Docling で図表 PNG + メタデータ JSON 出力 |
 | `normalize_figures.py` | メタデータからキャプション番号に沿ってリネーム（idempotent） |
