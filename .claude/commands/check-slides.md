@@ -25,16 +25,24 @@ Phase 1 の結果を OK / WARNING / ERROR で報告する。
 
 Phase 1 完了後、以下の手順で見切れを視覚的に検証する:
 
-1. marp-cli でスライドを PNG に変換する:
+1. PNG 出力用の一時ディレクトリを作成する:
    ```
-   npx @marp-team/marp-cli $ARGUMENTS/slide.md --images png --theme $ARGUMENTS/academic.css --allow-local-files -o $ARGUMENTS/slide.png
+   mkdir -p $ARGUMENTS/_check_tmp
    ```
-2. 生成された `$ARGUMENTS/slide.001.png` 〜 を **すべて Read ツールで表示**し、各スライドを目視確認する
-3. 以下の観点でチェックする:
+2. marp-cli でスライドを PNG に変換する:
+   ```
+   npx @marp-team/marp-cli $ARGUMENTS/slide.md --images png --theme $ARGUMENTS/academic.css --allow-local-files -o $ARGUMENTS/_check_tmp/slide.png
+   ```
+3. 生成された `$ARGUMENTS/_check_tmp/slide.001.png` 〜 を **すべて Read ツールで表示**し、各スライドを目視確認する
+4. 以下の観点でチェックする:
    - ヘッダーバーの文字が右端で途切れていないか
    - スライド下端でテキスト・箇条書き・数式・画像が見切れていないか
    - テキストが多すぎてスライドが窮屈になっていないか
-4. 問題のあるスライドを番号・原因とともに報告する
+5. 問題のあるスライドを番号・原因とともに報告する
+6. **クリーンアップ**: 目視確認完了後、一時ディレクトリを削除する:
+   ```
+   rm -rf $ARGUMENTS/_check_tmp
+   ```
 
 ## Phase 3: 修正提案
 
