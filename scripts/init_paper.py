@@ -45,7 +45,7 @@ def copy_templates(dst_dir: Path) -> None:
 
 
 def write_agent(dst_dir: Path, pdf_name: str) -> None:
-    agent_path = dst_dir / "AGENT.md"
+    agent_path = dst_dir / "AGENTS.md"
     if agent_path.exists():
         return
 
@@ -111,7 +111,7 @@ def main() -> None:
     copy_templates(cwd)
     write_agent(cwd, pdf_path.name)
 
-    print("初期化完了: AGENT.md, figures/, meta/, academic.css, prompt.md を用意しました。")
+    print("初期化完了: AGENTS.md, figures/, meta/, academic.css, prompt.md を用意しました。")
 
 
 if __name__ == "__main__":
