@@ -1,13 +1,13 @@
 # 論文スライド化プロジェクト
 
-学術論文 (PDF) をプレゼン資料に変換するワークフローツール。
+学術論文 (PDF) をプレゼン資料 (`pptx`) に変換するワークフローツール。
 新フローでは、先にレビュー用の通常 Markdown（`content.md`）を確定してから `pptx` を生成する。
 
 ## 3 フェーズ構成
 
 - **Phase 1 (自動処理)**: `paper_cli.py` で PDF → テキスト抽出 → 図表抽出 → リネームまで一括実行
 - **Phase 2 (AI 支援)**: `prompt.md` に従いレビュー用の通常 Markdown (`content.md`) を生成
-- **Phase 3 (AI 支援)**: レビュー済み `content.md` から plugin（document-skills）で `pptx` を生成
+- **Phase 3 (AI 支援)**: レビュー済み `content.md` から plugin（document-skills）で `pptx` を生成（レイアウトチェック込み）
 
 ## ディレクトリ構成
 
@@ -18,7 +18,7 @@ scripts/           # 共通スクリプト
   pdf_to_text.py     PyMuPDF でテキスト抽出
   extract_figures.py Docling で図表抽出
   normalize_figures.py Figure1.png 等にリネーム
-template/          # prompt.md, format.md, academic.css のテンプレート
+template/          # prompt.md のテンプレート
 papers/            # 論文ワークスペース（.gitignore で除外）
 ```
 
@@ -26,9 +26,8 @@ papers/            # 論文ワークスペース（.gitignore で除外）
 
 ```
 paper.pdf       paper_text.txt    figures/    meta/
-stats.json      prompt.md         format.md
-content.md      academic.css      AGENTS.md
-presentation.pptx
+stats.json      prompt.md         content.md
+presentation.pptx    AGENTS.md    CLAUDE.md
 ```
 
 ## セットアップ
@@ -67,21 +66,6 @@ pip install -r requirements.txt
 
 - `pathlib.Path`、`encoding="utf-8"`、`argparse`、`main()` パターン、型ヒント
 
-## Marp フォーマットルール
-
-完全な仕様は各ワークスペースの `format.md` を参照。以下は頻出ルール:
-
-1. **`<div>` タグ後の空行は必須** — Marp が内部の markdown を認識するために必要
-2. **通常スライドは `<div style="font-size:0.8em">` で囲む**
-3. **ヘッダ `<!-- _header: ... -->`** — スライドの主張を文として書く（全角1・半角0.5換算で30以内）
-4. **見出し `#### **テキスト**`** — h4 + bold
-5. **画像 `![w:600](./figures/Figure1.png)`** — 中央は `![w:1100 center](...)`
-6. **左右配置** — `<div style="display: flex; gap:1em">`（内部 div 後にも空行）
-7. **数式** — KaTeX。ブロック数式直後に記号・次元の箇条書き
-8. **front matter** — `marp: true`, `theme: academic`, `paginate: true`, `math: katex`
-9. **セクション区切り** — `<!-- _class: lead -->` + `## タイトル`
-
 ## 依存関係
 
 - **Python**: docling (>=2.63.0,<3.0.0), pymupdf
-- **Node.js** (任意): @marp-team/marp-cli

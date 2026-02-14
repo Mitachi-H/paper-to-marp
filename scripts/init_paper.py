@@ -29,7 +29,7 @@ def find_pdf(cwd: Path, explicit: Path | None) -> Path:
 
 
 def copy_templates(dst_dir: Path) -> None:
-    for name in ("academic.css", "prompt.md", "format.md"):
+    for name in ("prompt.md",):
         src = TEMPLATE_DIR / name
         dst = dst_dir / name
         if dst.exists():
@@ -79,8 +79,6 @@ def render_agent_content(pdf_name: str) -> str:
         | `meta/` | 図表メタデータ JSON |
         | `prompt.md` | `content.md` 生成プロンプト（内容面の指示） |
         | `content.md` | レビュー用の通常 Markdown |
-        | `format.md` | （必要に応じた）Marp 書式ルール |
-        | `academic.css` | Marp テーマ |
         | `presentation.pptx` | 最終プレゼン資料 |
 
         ## コンテンツ生成 (Phase 2)
@@ -95,7 +93,7 @@ def render_agent_content(pdf_name: str) -> str:
             - 発表者名・セミナー名
             - （論文内容に応じた具体的な質問）
         4. `prompt.md` の指示に従って `content.md` を生成する。
-           - **この段階では Marp 形式を使わない**（front matter, `<div>`, `<!-- _header -->`, `---` 区切りは禁止）。
+           - **この段階ではスライド専用記法を使わない**（front matter, `<div>`, `<!-- _header -->`, `---` 区切りは禁止）。
            - 図は `./figures/<ファイル名>` で参照（実在ファイルのみ使用）。
 
         ## スライド生成 (Phase 3)
@@ -113,7 +111,7 @@ def render_agent_content(pdf_name: str) -> str:
         ## 重要なルール
 
         - `prompt.md` の内容に従う。変更が必要ならユーザーに確認する。
-        - `content.md` は通常 Markdown で作る（Marp 記法を混ぜない）。
+        - `content.md` は通常 Markdown で作る（スライド専用記法を混ぜない）。
         - `/generate-slides` では plugin のチェック結果を必ず共有する。
         """
     ).strip() + "\n"
@@ -144,8 +142,8 @@ def main() -> None:
     write_agent_docs(cwd, pdf_path.name)
 
     print(
-        "初期化完了: AGENTS.md, CLAUDE.md, figures/, meta/, academic.css, "
-        "prompt.md, format.md, content.md を用意しました。"
+        "初期化完了: AGENTS.md, CLAUDE.md, figures/, meta/, "
+        "prompt.md, content.md を用意しました。"
     )
 
 

@@ -1,6 +1,6 @@
 # 論文スライド化
 
-学術論文の PDF を、段階的にプレゼン資料へ変換するワークフローツールです。
+学術論文の PDF を、段階的にプレゼン資料（pptx）へ変換するワークフローツールです。
 新フローでは、先にレビュー用の通常 Markdown（`content.md`）を確定してから `pptx` を生成します。
 
 ## セットアップ
@@ -9,13 +9,9 @@
 # Python 依存
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-# PDF 出力用（任意）
-npm install -g @marp-team/marp-cli
 ```
 
 - Docling 初回実行時にレイアウトモデルをダウンロードするため、ネット接続が必要
-- VSCode に [Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode) をインストールすること（プレビュー・PDF 出力に使用）
 
 ## ワークフロー
 
@@ -37,7 +33,6 @@ PDF からテキスト・図表を自動抽出し、ワークスペース (`pape
 | `stats.json` | 抽出の実行統計 |
 | `prompt.md` | `content.md` 生成プロンプト（テンプレートからコピー、カスタマイズ可） |
 | `content.md` | レビュー用の通常 Markdown（`/generate-content` で生成） |
-| `academic.css` | Marp テーマ |
 | `presentation.pptx` | 最終プレゼン資料（`/generate-slides` で生成） |
 | `AGENTS.md` | Codex 向け指示 |
 | `CLAUDE.md` | Claude Code 向け指示（`AGENTS.md` と同内容を生成） |
@@ -45,7 +40,7 @@ PDF からテキスト・図表を自動抽出し、ワークスペース (`pape
 ### 3. 内容生成 — `/generate-content papers/<slug>`
 
 論文テキストと図表を読み込み、`prompt.md` に従って通常 Markdown の `content.md` を生成する。
-この段階では **Marp 形式（front matter / `<div>` / `<!-- _header -->`）を使わない**。
+この段階では **スライド専用記法（front matter / `<div>` / `<!-- _header -->`）を使わない**。
 
 ### 4. 人手レビュー
 
@@ -60,7 +55,7 @@ PDF からテキスト・図表を自動抽出し、ワークスペース (`pape
 
 ```
 scripts/           共通スクリプト（paper_cli.py 等）
-template/          prompt.md, format.md, academic.css のテンプレート
+template/          prompt.md などのテンプレート
 papers/            論文ワークスペース（.gitignore で除外）
 .claude/commands/  スラッシュコマンド定義
 ```
@@ -76,7 +71,6 @@ papers/            論文ワークスペース（.gitignore で除外）
 ## 依存関係
 
 - **Python 3.10+**: docling, pymupdf
-- **Node.js**（任意）: @marp-team/marp-cli
 - **Claude Code**: スラッシュコマンドの実行に必要
 
 ## ライセンス
