@@ -1,4 +1,4 @@
-`python scripts/paper_cli.py --pdf $ARGUMENTS` を実行する。
+.venvを起動し、`python scripts/paper_cli.py --pdf $ARGUMENTS` を実行する。
 
 完了後:
 1. ワークスペースのパス・抽出テキスト行数・図表数を報告する
