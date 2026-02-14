@@ -1,19 +1,20 @@
 # 論文スライド化プロジェクト
 
-学術論文 (PDF) を Marp スライド (academic テーマ) に変換するワークフローツール。
-スライド生成時は各ワークスペースの `prompt.md`（内容指示）と `format.md`（書式ルール）に従う。
+学術論文 (PDF) をプレゼン資料に変換するワークフローツール。
+新フローでは、先にレビュー用の通常 Markdown（`content.md`）を確定してから `pptx` を生成する。
 
-## 2 フェーズ構成
+## 3 フェーズ構成
 
 - **Phase 1 (自動処理)**: `paper_cli.py` で PDF → テキスト抽出 → 図表抽出 → リネームまで一括実行
-- **Phase 2 (AI 支援)**: `prompt.md` + `format.md` に従い `slide.md` を生成
+- **Phase 2 (AI 支援)**: `prompt.md` に従いレビュー用の通常 Markdown (`content.md`) を生成
+- **Phase 3 (AI 支援)**: レビュー済み `content.md` から plugin（document-skills）で `pptx` を生成
 
 ## ディレクトリ構成
 
 ```
 scripts/           # 共通スクリプト
   paper_cli.py       Phase 1 ワンコマンド CLI
-  init_paper.py      ワークスペース初期化 & AGENT.md 生成
+  init_paper.py      ワークスペース初期化 & AGENTS.md 生成
   pdf_to_text.py     PyMuPDF でテキスト抽出
   extract_figures.py Docling で図表抽出
   normalize_figures.py Figure1.png 等にリネーム
@@ -26,7 +27,8 @@ papers/            # 論文ワークスペース（.gitignore で除外）
 ```
 paper.pdf       paper_text.txt    figures/    meta/
 stats.json      prompt.md         format.md
-academic.css    AGENT.md          slide.md       slide.pdf (任意)
+content.md      academic.css      AGENTS.md
+presentation.pptx
 ```
 
 ## セットアップ
@@ -49,8 +51,7 @@ pip install -r requirements.txt
 # 新規論文（Phase 1 一括）
 .venv/bin/python scripts/paper_cli.py --pdf ~/Downloads/foo.pdf
 
-# PDF 出力（marp-cli）
-npx @marp-team/marp-cli slide.md -o slide.pdf --theme academic.css --allow-local-files
+# 最終資料は /generate-slides で pptx 生成
 ```
 
 ## スラッシュコマンド
@@ -59,8 +60,8 @@ npx @marp-team/marp-cli slide.md -o slide.pdf --theme academic.css --allow-local
 |---|---|
 | `/init-prompt` | `template/prompt.md` を用途に合わせてカスタマイズ（初回セットアップ） |
 | `/new-paper` | PDF → ワークスペース作成 |
-| `/generate-slides` | 論文を読み `slide.md` を生成 |
-| `/check-slides` | `slide.md` のフォーマット検証 |
+| `/generate-content` | 論文を読みレビュー用 `content.md` を生成 |
+| `/generate-slides` | plugin（document-skills）で `pptx` を生成（レイアウトチェック込み） |
 
 ## コーディング規約
 
