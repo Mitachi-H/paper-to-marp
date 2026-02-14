@@ -1,6 +1,7 @@
 # 論文スライド化
 
-学術論文の PDF を、Claude Code のスラッシュコマンドだけで Marp スライドに変換するツールです。
+学術論文の PDF を、段階的にプレゼン資料（pptx）へ変換するワークフローツールです。
+新フローでは、先にレビュー用の通常 Markdown（`content.md`）を確定してから `pptx` を生成します。
 
 ## セットアップ
 
@@ -8,19 +9,15 @@
 # Python 依存
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-# PDF 出力用（任意）
-npm install -g @marp-team/marp-cli
 ```
 
 - Docling 初回実行時にレイアウトモデルをダウンロードするため、ネット接続が必要
-- VSCode に [Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode) をインストールすること（プレビュー・PDF 出力に使用）
 
 ## ワークフロー
 
 ### 1. 初回セットアップ — `/init-prompt`
 
-`template/prompt.md`（スライド生成の内容指示テンプレート）を、対象読者・専門分野・発表形式に合わせてカスタマイズする。一度設定すれば以降の全論文に反映される。
+`template/prompt.md`（`content.md` 生成用の内容指示テンプレート）を、対象読者・専門分野・発表形式に合わせてカスタマイズする。一度設定すれば以降の全論文に反映される。
 
 ### 2. 論文の取り込み — `/new-paper <PDF パス>`
 
@@ -34,36 +31,31 @@ PDF からテキスト・図表を自動抽出し、ワークスペース (`pape
 | `figures/` | `Figure1.png`, `Table1.png`, ...（Docling 抽出） |
 | `meta/` | 図表メタデータ JSON |
 | `stats.json` | 抽出の実行統計 |
-| `prompt.md` | スライド生成プロンプト（テンプレートからコピー、カスタマイズ可） |
-| `academic.css` | Marp テーマ |
+| `prompt.md` | `content.md` 生成プロンプト（テンプレートからコピー、カスタマイズ可） |
+| `content.md` | レビュー用の通常 Markdown（`/generate-content` で生成） |
+| `presentation.pptx` | 最終プレゼン資料（`/generate-slides` で生成） |
 | `AGENTS.md` | Codex 向け指示 |
 | `CLAUDE.md` | Claude Code 向け指示（`AGENTS.md` と同内容を生成） |
 
-### 3. スライド生成 — `/generate-slides papers/<slug>`
+### 3. 内容生成 — `/generate-content papers/<slug>`
 
-論文テキストと図表を読み込み、`prompt.md` + `format.md` に従って `slide.md` を生成する。
-背景の深さ・強調セクション・発表者名などを対話的に決められる。
+論文テキストと図表を読み込み、`prompt.md` に従って通常 Markdown の `content.md` を生成する。
+この段階では **スライド専用記法（front matter / `<div>` / `<!-- _header -->`）を使わない**。
 
-### 4. フォーマット検証 — `/check-slides papers/<slug>`
+### 4. 人手レビュー
 
-生成された `slide.md` の書式チェックと見切れ検出を行う。
+`content.md` を人間がレビューして、主張・構成・数式説明・実務観点を確定する。
 
-- **静的チェック**: front matter、`<div>` 空行、ヘッダー文字数制限など
-- **レンダリング目視**: marp-cli で PNG 出力 → 全スライドを視覚的に確認
-- **修正提案**: 見切れ箇所の短縮・分割案を提示し、確認後に自動修正
+### 5. スライド生成 — `/generate-slides papers/<slug>`
 
-### 5. PDF 出力（任意）
-
-```bash
-cd papers/<slug>
-npx @marp-team/marp-cli slide.md -o slide.pdf --theme academic.css --allow-local-files
-```
+レビュー済み `content.md` をもとに、plugin（document-skills）で `pptx` を生成する。
+レイアウト崩れチェックは同時に実行される。
 
 ## ディレクトリ構成
 
 ```
 scripts/           共通スクリプト（paper_cli.py 等）
-template/          prompt.md, format.md, academic.css のテンプレート
+template/          prompt.md などのテンプレート
 papers/            論文ワークスペース（.gitignore で除外）
 .claude/commands/  スラッシュコマンド定義
 ```
@@ -79,7 +71,6 @@ papers/            論文ワークスペース（.gitignore で除外）
 ## 依存関係
 
 - **Python 3.10+**: docling, pymupdf
-- **Node.js**（任意）: @marp-team/marp-cli
 - **Claude Code**: スラッシュコマンドの実行に必要
 
 ## ライセンス

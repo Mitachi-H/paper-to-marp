@@ -1,7 +1,7 @@
 [project]
 name = "paper-to-slides"
 version = "0.1.0"
-description = "学術論文 (PDF) を Marp スライドに変換するワークフローツール"
+description = "学術論文 (PDF) からプレゼン資料 (pptx) を生成するワークフローツール"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

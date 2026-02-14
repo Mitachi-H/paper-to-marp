@@ -29,7 +29,7 @@ def find_pdf(cwd: Path, explicit: Path | None) -> Path:
 
 
 def copy_templates(dst_dir: Path) -> None:
-    for name in ("academic.css", "prompt.md", "format.md"):
+    for name in ("prompt.md",):
         src = TEMPLATE_DIR / name
         dst = dst_dir / name
         if dst.exists():
@@ -44,12 +44,29 @@ def copy_templates(dst_dir: Path) -> None:
         shutil.copytree(vscode_src, vscode_dst)
 
 
+def ensure_content_stub(dst_dir: Path) -> None:
+    content_path = dst_dir / "content.md"
+    if content_path.exists():
+        return
+    content_path.write_text(
+        dedent(
+            """
+            # Content Draft
+
+            `/generate-content` 実行後、このファイルにレビュー用の通常 Markdown が出力されます。
+            内容レビュー完了後に `/generate-slides` を実行してください。
+            """
+        ).lstrip(),
+        encoding="utf-8",
+    )
+
+
 def render_agent_content(pdf_name: str) -> str:
     return dedent(
         f"""
         # Paper Slide Agent
 
-        このディレクトリの論文 PDF から Marp (theme: academic) 用の `slide.md` を生成する。
+        このディレクトリの論文 PDF を段階的に整理し、最終的にプレゼン資料 (`pptx`) を生成する。
         プロジェクト全体の規約は `../../CLAUDE.md` を参照。
 
         ## ワークスペース構成
@@ -60,14 +77,13 @@ def render_agent_content(pdf_name: str) -> str:
         | `paper_text.txt` | 抽出テキスト（ページ区切り付き） |
         | `figures/` | 抽出された図表 (Figure*.png, Table*.png) |
         | `meta/` | 図表メタデータ JSON |
-        | `prompt.md` | スライド生成プロンプト（内容面の指示） |
-        | `format.md` | Marp 書式ルール（デザイン面の指示） |
-        | `academic.css` | Marp テーマ |
-        | `slide.md` | 生成するスライド |
+        | `prompt.md` | `content.md` 生成プロンプト（内容面の指示） |
+        | `content.md` | レビュー用の通常 Markdown |
+        | `presentation.pptx` | 最終プレゼン資料 |
 
-        ## スライド生成
+        ## コンテンツ生成 (Phase 2)
 
-        ユーザーが「この論文をスライド化して」などと言ったら:
+        ユーザーが「この論文の内容を整理して」などと言ったら:
 
         1. `paper_text.txt` を読み、論文の全体構成・主要貢献・手法・実験結果を把握する。
         2. `figures/` と `meta/` から利用可能な図表を確認する。
@@ -76,17 +92,27 @@ def render_agent_content(pdf_name: str) -> str:
             - 特に強調したいセクション
             - 発表者名・セミナー名
             - （論文内容に応じた具体的な質問）
-        4. `prompt.md`（内容）と `format.md`（書式）の指示を厳守して `slide.md` を生成する。
+        4. `prompt.md` の指示に従って `content.md` を生成する。
+           - **この段階ではスライド専用記法を使わない**（front matter, `<div>`, `<!-- _header -->`, `---` 区切りは禁止）。
            - 図は `./figures/<ファイル名>` で参照（実在ファイルのみ使用）。
 
+        ## スライド生成 (Phase 3)
+
+        ユーザーが「レビュー済み内容からスライド化して」と言ったら:
+
+        1. `content.md` を読み、レビュー済みの主張・構成を優先する。
+        2. plugin（document-skills）を使って `pptx` を生成する。
+        3. レイアウト崩れチェックも同時に行い、結果を報告する。
+
         Claude Code を使う場合、以下のスラッシュコマンドも利用可能:
-        - `/generate-slides` — スライド生成（このタスクと同等）
-        - `/check-slides` — 生成後のフォーマット検証
+        - `/generate-content` — レビュー用 `content.md` を生成
+        - `/generate-slides` — plugin（document-skills）で `pptx` を生成
 
         ## 重要なルール
 
-        - `prompt.md`、`format.md`、`academic.css` の内容に従う。変更が必要ならユーザーに確認する。
-        - `<div>` タグ後の空行を忘れない（Marp が markdown を認識するために必須）。
+        - `prompt.md` の内容に従う。変更が必要ならユーザーに確認する。
+        - `content.md` は通常 Markdown で作る（スライド専用記法を混ぜない）。
+        - `/generate-slides` では plugin のチェック結果を必ず共有する。
         """
     ).strip() + "\n"
 
@@ -112,9 +138,13 @@ def main() -> None:
     (cwd / "meta").mkdir(exist_ok=True)
 
     copy_templates(cwd)
+    ensure_content_stub(cwd)
     write_agent_docs(cwd, pdf_path.name)
 
-    print("初期化完了: AGENTS.md, CLAUDE.md, figures/, meta/, academic.css, prompt.md を用意しました。")
+    print(
+        "初期化完了: AGENTS.md, CLAUDE.md, figures/, meta/, "
+        "prompt.md, content.md を用意しました。"
+    )
 
 
 if __name__ == "__main__":
