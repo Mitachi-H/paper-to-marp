@@ -69,7 +69,7 @@ def compile_pdf(tex_source: str, temp_dir: Path, engine: str) -> Path:
     return pdf_path
 
 
-def render_pdf_to_png(pdf_path: Path, output_path: Path, dpi: int) -> None:
+def render_pdf_to_png(pdf_path: Path, output_path: Path, dpi: int, *, transparent: bool = False) -> None:
     if dpi <= 0:
         raise SystemExit("--dpi は 1 以上を指定してください。")
 
@@ -80,7 +80,7 @@ def render_pdf_to_png(pdf_path: Path, output_path: Path, dpi: int) -> None:
         if len(doc) == 0:
             raise SystemExit("生成 PDF にページがありません。")
         page = doc[0]
-        pix = page.get_pixmap(matrix=matrix, alpha=False)
+        pix = page.get_pixmap(matrix=matrix, alpha=transparent)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pix.save(output_path)
@@ -133,7 +133,7 @@ def main() -> None:
             shutil.rmtree(temp_dir)
         temp_dir.mkdir(parents=True, exist_ok=True)
         pdf_path = compile_pdf(tex_source, temp_dir, args.engine)
-        render_pdf_to_png(pdf_path, args.output, args.dpi)
+        render_pdf_to_png(pdf_path, args.output, args.dpi, transparent=args.inline)
         print(f"数式画像を出力しました: {args.output}")
         print(f"中間ファイルを保持しました: {temp_dir}")
         return
@@ -141,7 +141,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="tex_render_") as temp_str:
         temp_dir = Path(temp_str)
         pdf_path = compile_pdf(tex_source, temp_dir, args.engine)
-        render_pdf_to_png(pdf_path, args.output, args.dpi)
+        render_pdf_to_png(pdf_path, args.output, args.dpi, transparent=args.inline)
 
     print(f"数式画像を出力しました: {args.output}")
 
